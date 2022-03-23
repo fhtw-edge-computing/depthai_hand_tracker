@@ -57,13 +57,13 @@ def change_preset(event):
 #        speech_controller.say("Changed to kitchen light")
         selected_item = "Kueche1_KNX_Licht_Schalten"
     elif preset == "PRESET 2":
-#        speech_controller.say("Changed to living room lights")
+        speech_controller.say("Changed to living room lights")
         selected_item="WZ_LichtDimmer"
-    elif preset == "PRESET 3":
-        speech_controller.say("Changed to kitchen light")
+#    elif preset == "PRESET 3":
+#        speech_controller.say("Changed to kitchen light")
 #        selected_item = "Kueche1_KNX_Licht_Schalten"
-    elif preset == "PRESET 4":
-        speech_controller.say("Changed to kitchen light")
+#    elif preset == "PRESET 4":
+#        speech_controller.say("Changed to kitchen light")
 #       selected_item = "Kueche1_KNX_Licht_Schalten"
 
 def change_brightness(event):
@@ -84,11 +84,11 @@ def change_brightness(event):
         return
     if level == "+":
         new_val=str(min(100, int(brightness) + 20))
-        #speech_controller.say(new_val)
+        speech_controller.say(new_val)
         iface.post_state(selected_item,new_val)
     else:
         new_val=str(max(0, int(brightness) - 20))
-        #speech_controller.say(new_val)
+        speech_controller.say(new_val)
         iface.post_state(selected_item,new_val)
 
 config = {
@@ -100,12 +100,12 @@ config = {
 
     'pose_actions' : [
         {'name': 'ON_OFF', 'pose': 'FIST', 'callback': 'toggle_light'},
-        {'name': 'PRESET 1', 'pose':'ONE', 'callback': 'change_preset'},
-        {'name': 'PRESET 2', 'pose':'TWO', 'callback': 'change_preset'},
-        {'name': 'PRESET 3', 'pose':'THREE', 'callback': 'change_preset'},
-        {'name': 'PRESET 4', 'pose':'FOUR', 'callback': 'change_preset'},
+        {'name': 'PRESET 1', 'pose':'ONE', 'callback': 'change_preset',"first_trigger_delay":0.3},
+        {'name': 'PRESET 2', 'pose':'TWO', 'callback': 'change_preset',"first_trigger_delay":0.3},
+        {'name': 'PRESET 3', 'pose':'THREE', 'callback': 'change_preset',"first_trigger_delay":0.3},
+        {'name': 'PRESET 4', 'pose':'FOUR', 'callback': 'change_preset',"first_trigger_delay":0.3},
         {'name': 'BRIGHTNESS', 'pose': 'FIVE', 'callback': 'change_brightness',
-        "trigger":"periodic", "first_trigger_delay":0.3, "next_trigger_delay":0.3, },
+        "trigger":"periodic", "first_trigger_delay":0.3, "next_trigger_delay":1, },
     ]
 }
 
