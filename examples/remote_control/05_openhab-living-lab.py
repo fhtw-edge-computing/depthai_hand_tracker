@@ -54,7 +54,7 @@ def change_preset(event):
 
     global selected_item
     if preset == "PRESET 1":
-#        speech_controller.say("Changed to kitchen light")
+        speech_controller.say("Changed to kitchen light")
         selected_item = "Kueche1_KNX_Licht_Schalten"
     elif preset == "PRESET 2":
         speech_controller.say("Changed to living room lights")
@@ -99,13 +99,13 @@ config = {
     'renderer': {'enable': True},
 
     'pose_actions' : [
-        {'name': 'ON_OFF', 'pose': 'FIST', 'callback': 'toggle_light'},
+        {'name': 'ON_OFF', 'pose': 'FIST', 'callback': 'toggle_light',"first_trigger_delay":0.3},
         {'name': 'PRESET 1', 'pose':'ONE', 'callback': 'change_preset',"first_trigger_delay":0.3},
         {'name': 'PRESET 2', 'pose':'TWO', 'callback': 'change_preset',"first_trigger_delay":0.3},
         {'name': 'PRESET 3', 'pose':'THREE', 'callback': 'change_preset',"first_trigger_delay":0.3},
         {'name': 'PRESET 4', 'pose':'FOUR', 'callback': 'change_preset',"first_trigger_delay":0.3},
         {'name': 'BRIGHTNESS', 'pose': 'FIVE', 'callback': 'change_brightness',
-        "trigger":"periodic", "first_trigger_delay":0.3, "next_trigger_delay":1, },
+        "trigger":"periodic", "first_trigger_delay":0.3, "next_trigger_delay":1.5, },
     ]
 }
 
