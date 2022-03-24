@@ -17,6 +17,8 @@ monitor = get_monitors()[0]
 print(README)
 
 from HandController import HandController
+from SpeechController import SpeechController
+import math
 
 # Controlling the mouse
 try:
@@ -30,6 +32,8 @@ except ModuleNotFoundError:
     sys.exit()
 mouse = Controller()
 keyboard=KeyboardController()
+# For the audio feedback:
+speech_controller = SpeechController()
 
 # Get screen resolution 
 try:
@@ -157,7 +161,7 @@ def click(event):
 def handle_selection(event):
     keyboard.tap(Key.space)
 
-def handle_rotation(event):
+def handle_rotation_hand(event):
     event.print_line()
     rotation = event.hand.rotation
 
@@ -173,47 +177,46 @@ def handle_rotation(event):
     else:
         keyboard.tap(Key.left)
 
+def handle_rotation(event, coord_joint, coord_tip):
+    orientation=coord_tip-coord_joint
+    print (orientation[0], orientation[1])
+
+    # Ankathete
+    adjacent = orientation[0]
+    hypotenuse=math.dist(coord_tip,coord_joint)
+    alpha=math.acos(adjacent/hypotenuse)
+
+    degree = 360 * alpha / (2 * math.pi)
+    print(str(alpha)+ "degree: "+str(degree))
+
+    if 135 > degree >= 45 and orientation[1] > 0:
+        keyboard.tap(Key.down)
+    elif 45 > degree >= 0:
+        #keyboard.tap(Key.left)
+
+        if event.pose == "ONE":
+            print("back shortcut")
+            speech_controller.say("back")
+            with keyboard.pressed(Key.ctrl):
+                keyboard.tap(Key.backspace)
+
+        if event.pose == "OK":
+            print("home shortcut")
+            speech_controller.say("home")
+            with keyboard.pressed(Key.ctrl):
+                keyboard.tap(Key.home)
+    elif 135 > degree >= 45 and orientation[1] <= 0:
+        keyboard.tap(Key.up)
+    elif 180 >= degree >= 135:
+        keyboard.tap(Key.right)
+
 def handle_rotation_OK(event):
     event.print_line()
-    coord_thumb_CMC = event.hand.landmarks[1]
-    coord_thumb_tip = event.hand.landmarks[4]
-
-    #print(coord_thumb_tip)
-    orientation=coord_thumb_tip-coord_thumb_CMC
-    print (orientation)
+    handle_rotation(event,event.hand.landmarks[1],event.hand.landmarks[4])
 
 def handle_rotation_ONE(event):
     event.print_line()
-    coord_thumb_CMC = event.hand.landmarks[5]
-    coord_thumb_tip = event.hand.landmarks[8]
-
-    #print(coord_thumb_tip)
-    orientation=coord_thumb_tip-coord_thumb_CMC
-    print (orientation[0], orientation[1])
-
-
-    if orientation[0] < -0:
-        keyboard.tap(Key.right)
-    elif orientation[0] > 0:
-        keyboard.tap(Key.left)
-
-    if orientation[1] < -0:
-        keyboard.tap(Key.down)
-    elif orientation[1] > 0:
-        keyboard.tap(Key.up)
-
-    # if rotation < -0.2:
-    #     level = "+"
-    # elif rotati     on > 0.4:
-    #     level = "-"
-    # else:
-    #     return
-    #
-    # if level == "+":
-    #     keyboard.tap(Key.right)
-    # else:
-    #     keyboard.tap(Key.left)
-
+    handle_rotation(event,event.hand.landmarks[5],event.hand.landmarks[8])
 
 config = {
     'renderer' : {'enable': True},
@@ -223,12 +226,12 @@ config = {
 #        {'name': 'MOVE', 'pose':['ONE','TWO'], 'callback': 'move', "trigger":"continuous", "first_trigger_delay":0.1,},
 #        {'name': 'CLICK', 'pose':'TWO', 'callback': 'press_release', "trigger":"enter_leave", "first_trigger_delay":0.1},
         {'name': 'ON_OFF', 'pose': 'FIST', 'callback': 'handle_selection', "first_trigger_delay": 0.3},
-        {'name': 'ROTATION', 'pose': 'FIVE', 'callback': 'handle_rotation',
+        {'name': 'ROTATION', 'pose': 'FIVE', 'callback': 'handle_rotation_hand',
          "trigger": "periodic", "first_trigger_delay": 0.3, "next_trigger_delay": 0.75, },
-#        {'name': 'ONE_ROTATION', 'pose': 'ONE', 'callback': 'handle_rotation_ONE',
-#         "trigger": "periodic", "first_trigger_delay": 0.3, "next_trigger_delay": 0.75, },
-#        {'name': 'OK_ROTATION', 'pose': 'OK', 'callback': 'handle_rotation_OK',
-#         "trigger": "periodic", "first_trigger_delay": 0.3, "next_trigger_delay": 0.75, },
+        {'name': 'ONE_ROTATION', 'pose': 'ONE', 'callback': 'handle_rotation_ONE',
+         "trigger": "periodic", "first_trigger_delay": 0.3, "next_trigger_delay": 0.75, },
+        {'name': 'OK_ROTATION', 'pose': 'OK', 'callback': 'handle_rotation_OK',
+         "trigger": "periodic", "first_trigger_delay": 0.3, "next_trigger_delay": 0.75, },
     ]
 }
 
