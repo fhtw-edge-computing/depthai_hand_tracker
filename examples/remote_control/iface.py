@@ -7,7 +7,12 @@ test_url_string2 = 'http://192.168.43.62:8080/rest/items'
 
 url_str = url_string
 
+mock_connection=True
+
 def get_state(item_name):
+    if mock_connection == True:
+        return ""
+
     item_url = furl(url_str)
     item_url.path = item_url.path / item_name / 'state'
     #print(f'iface get_state: item_url url = {item_url.url}')
@@ -19,6 +24,9 @@ def get_state(item_name):
       return 'Error'
 
 def post_state(item_name, state):
+    if mock_connection == True:
+        return "OK"
+
     item_url = furl(url_str)
     # Add item name to url:
     item_url.path = item_url.path / item_name 
