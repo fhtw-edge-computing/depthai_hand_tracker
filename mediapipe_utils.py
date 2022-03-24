@@ -514,6 +514,11 @@ def recognize_gesture(hand):
     # state: -1=unknown, 0=close, 1=open
     d_3_5 = distance(hand.norm_landmarks[3], hand.norm_landmarks[5])
     d_2_3 = distance(hand.norm_landmarks[2], hand.norm_landmarks[3])
+
+    # ---------------------------------------------------------------
+    d_4_8 = distance(hand.norm_landmarks[4], hand.norm_landmarks[8])  # for tracker
+    d_8_16 = distance(hand.norm_landmarks[8], hand.norm_landmarks[16])  # for back
+
     angle0 = angle(hand.norm_landmarks[0], hand.norm_landmarks[1], hand.norm_landmarks[2])
     angle1 = angle(hand.norm_landmarks[1], hand.norm_landmarks[2], hand.norm_landmarks[3])
     angle2 = angle(hand.norm_landmarks[2], hand.norm_landmarks[3], hand.norm_landmarks[4])
@@ -568,9 +573,24 @@ def recognize_gesture(hand):
         hand.gesture = "THREE"
     elif hand.thumb_state == 0 and hand.index_state == 1 and hand.middle_state == 1 and hand.ring_state == 1 and hand.little_state == 1:
         hand.gesture = "FOUR"
+    #----------------------------------------------------------------------------------------------------------------------
+    elif hand.thumb_state == 1 and hand.index_state == 1 and hand.middle_state == 0 and hand.ring_state == 0 and hand.little_state == 0:
+        hand.gesture = "TRACK"
+    elif hand.thumb_state == 0 and hand.index_state == 1 and hand.middle_state == 1 and hand.ring_state == 1 and hand.little_state == 0:
+        hand.gesture = "SIX"
+    elif hand.thumb_state == 1 and hand.index_state == 0 and hand.middle_state == 0 and hand.ring_state == 0 and hand.little_state == 1:
+        hand.gesture = "ALOHA"
+    elif hand.thumb_state == 0 and hand.index_state == 1 and hand.middle_state == 0 and hand.ring_state == 0 and hand.little_state == 1:
+        hand.gesture = "HORNS"
+    #----------------------------------------------------------------------------------------------------------------------
     else:
         hand.gesture = None
 
+    # extension for home control
+    if hand.gesture is not None:
+        hand.distance_4_8 = d_4_8
+    if hand.gesture == 'FOUR' and d_8_16 < 0.21:
+        hand.gesture = 'BACK'
 
 # Movenet
 
