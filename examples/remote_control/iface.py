@@ -9,9 +9,15 @@ url_str = url_string
 
 mock_connection=True
 
+mock_state=dict()
+
 def get_state(item_name):
+    global mock_state
     if mock_connection == True:
-        return ""
+        if item_name in mock_state:
+            return mock_state[item_name]
+        else:
+            return ""
 
     item_url = furl(url_str)
     item_url.path = item_url.path / item_name / 'state'
@@ -24,7 +30,9 @@ def get_state(item_name):
       return 'Error'
 
 def post_state(item_name, state):
+    global mock_state
     if mock_connection == True:
+        mock_state[item_name]=state
         return "OK"
 
     item_url = furl(url_str)
@@ -58,5 +66,9 @@ if __name__ == '__main__':
     post_state('Kueche2_KNX_Licht_Schalten', 'ON')
     state = get_state('Kueche2_KNX_Licht_Schalten')  # Kochtisch Licht
     print(state)
+
+    post_state('LED_ColorTemp',"10")
+    print(get_state('LED_ColorTemp'))
+
 
 
