@@ -587,10 +587,10 @@ def recognize_gesture(hand):
         hand.gesture = None
 
     # extension for home control
-    if hand.gesture is not None:
-        hand.distance_4_8 = d_4_8
-    if hand.gesture == 'FOUR' and d_8_16 < 0.21:
-        hand.gesture = 'BACK'
+    # if hand.gesture is not None:
+    #     hand.distance_4_8 = d_4_8
+    # if hand.gesture == 'FOUR' and d_8_16 < 0.21:
+    #     hand.gesture = 'BACK'
 
 # Movenet
 
