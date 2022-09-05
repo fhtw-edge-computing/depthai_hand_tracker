@@ -12,7 +12,7 @@ print(README)
 from time import time
 from HandController import HandController
 import iface
-from SpeechController import SpeechController
+from SpeechController_gTTS import SpeechController
 import itemTree
 
 # For the audio feedback:
@@ -119,7 +119,8 @@ def change_brightness(event):
             print(f'{selected_item["name"]} = {new_val}')
             speech_controller.say(new_val)
             iface.post_state(selected_item['name'], new_val)
-
+        else:
+            toggle_light(event)
 
 config = {
 
@@ -129,7 +130,7 @@ config = {
     'renderer': {'enable': True},
 
     'pose_actions': [
-        # {'name': 'ON_OFF', 'pose': 'FIST', 'callback': 'toggle_light',"first_trigger_delay":0.3},
+        #{'name': 'ON_OFF', 'pose': 'ANY', 'callback': 'toggle_light',"first_trigger_delay":0.3},
         {'name': 'PRESET 1', 'pose': 'ONE', 'callback': 'change_preset', "first_trigger_delay": 0.3},
         {'name': 'PRESET 2', 'pose': ['TWO'], 'callback': 'change_preset', "first_trigger_delay": 0.3},
         {'name': 'PRESET 3', 'pose': 'THREE', 'callback': 'change_preset', "first_trigger_delay": 0.3},
