@@ -12,7 +12,7 @@ print(README)
 from time import time
 from HandController import HandController
 import iface
-from SpeechController_gTTS import SpeechController
+from SpeechController import SpeechController
 import itemTree
 
 # For the audio feedback:
@@ -22,13 +22,18 @@ item_tree = itemTree.itemTree
 cur_idx = 0
 nav_menu = itemTree.menu
 
+prev_gesture=""
 
 # Callbacks
 def toggle_light(event):
     global cur_idx
+    global prev_gesture
     event.print_line()
     new_state = "OFF"
 
+    if prev_gesture == event.name:
+        print(f"ignoring recurring gesture: {prev_gesture}=={event.name}")
+        return
     #    item=item_tree[selected_room][selected_device][selected_item]
     #    cur_state=iface.get_state(item.get('name'))
 
@@ -39,8 +44,14 @@ def toggle_light(event):
     if cur_state == "OFF":
         new_state = "ON"
         state_label = "on"
-    else:
+    elif cur_state == "ON":
         new_state = "OFF"
+        state_label = "off"
+    elif cur_state == "0":
+        new_state = "100"
+        state_label = "on"
+    elif cur_state == "100":
+        new_state = "0"
         state_label = "off"
 
     #    error_msg=iface.post_state(item.get('name'),state_label)
@@ -54,6 +65,7 @@ def toggle_light(event):
 
 def change_preset(event):
     global cur_idx
+    global prev_gesture
     event.print_line()
     preset = event.name
 
@@ -70,10 +82,10 @@ def change_preset(event):
     elif preset == "NAVIGATE":
         rotation = event.hand.rotation
         print(f'hand rotation: {event.hand.rotation}')
-        if rotation < -0.15:
+        if rotation < -0.20:
             cur_idx += 1
             if cur_idx == len(nav_menu): cur_idx -= 1
-        elif rotation > 0.35:
+        elif rotation > 0.40:
             cur_idx -= 1
             if cur_idx < 0: cur_idx = 0
 
@@ -83,16 +95,20 @@ def change_preset(event):
         print(f'selected item: {str(selected_item)}')
         speech_controller.say(selected_item['label'])
 
+    # remember this gesture as previous
+    prev_gesture=preset
+
 
 def change_brightness(event):
     global cur_idx
+    global prev_gesture
     event.print_line()
 
     rotation = event.hand.rotation
     print(f'hand rotation: {event.hand.rotation}')
-    if rotation < -0.15:
+    if rotation < -0.20:
         level = "+"
-    elif rotation > 0.35:
+    elif rotation > 0.40:
         level = "-"
     else:
         level = "="
@@ -122,6 +138,10 @@ def change_brightness(event):
         else:
             toggle_light(event)
 
+    # remember this gesture as previous
+    prev_gesture=event.name
+
+
 config = {
 
     # 'tracker': {'args': {'body_pre_focusing': 'higher'}},
@@ -136,9 +156,9 @@ config = {
         {'name': 'PRESET 3', 'pose': 'THREE', 'callback': 'change_preset', "first_trigger_delay": 0.3},
         #{'name': 'PRESET 4', 'pose': ['FOUR'], 'callback': 'change_preset', "first_trigger_delay": 0.3},
         {'name': 'NAVIGATE', 'pose': ['FIVE', 'FOUR'], 'callback': 'change_preset',
-         "trigger": "periodic", "first_trigger_delay": 0.2, "next_trigger_delay": 1.0, },
+         "trigger": "periodic", "first_trigger_delay": 0.2, "next_trigger_delay": 3, },
         {'name': 'BRIGHTNESS', 'pose': 'FIST', 'callback': 'change_brightness',
-         "trigger": "periodic", "first_trigger_delay": 0.2, "next_trigger_delay": 1.2, },
+         "trigger": "periodic", "first_trigger_delay": 0.2, "next_trigger_delay": 3, },
     ]
 }
 
