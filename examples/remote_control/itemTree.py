@@ -57,17 +57,17 @@ itemTree = {
             'item1': {
                 'name': 'Kueche1_KNX_Licht_Schalten',
                 'type': 'bool',  # ON or OFF
-                'label': 'Lights dinner table kitchen'
+                'label': 'One: Lights dinner table kitchen'
             },
             'item2': {
                 'name': 'Kueche2_KNX_Licht_Schalten',
                 'type': 'bool',
-                'label': 'Lights cooking table kitchen'
+                'label': 'Two: Lights cooking table kitchen'
             },
             'item3': {
                 'name': 'Kueche_LichtDimmer',
                 'type': 'percentage',  # 0 - 100
-                'label': 'Dimmable lights kitchen'
+                'label': 'Three: Dimmable lights kitchen'
             },
             'item4': {
                 'name': 'LED_On_Off',
