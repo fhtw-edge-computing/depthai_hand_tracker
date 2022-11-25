@@ -12,8 +12,11 @@ print(README)
 from time import time
 from HandController import HandController
 import iface
-from SpeechController import SpeechController
+from SpeechController_ttspico import SpeechController
 import itemTree
+
+import chime
+chime.theme('zelda')
 
 # For the audio feedback:
 speech_controller = SpeechController()
@@ -84,10 +87,15 @@ def change_preset(event):
         print(f'hand rotation: {event.hand.rotation}')
         if rotation < -0.20:
             cur_idx += 1
-            if cur_idx == len(nav_menu): cur_idx -= 1
+            if cur_idx == len(nav_menu):
+                cur_idx -= 1
+                play_error()
+
         elif rotation > 0.40:
             cur_idx -= 1
-            if cur_idx < 0: cur_idx = 0
+            if cur_idx < 0:
+                cur_idx = 0
+                play_error()
 
     #print(f'cur_idx: {cur_idx}')
     if last_idx != cur_idx:
@@ -141,6 +149,11 @@ def change_brightness(event):
     # remember this gesture as previous
     prev_gesture=event.name
 
+def play_sound(event=None):
+    chime.info(False)
+
+def play_error(event=None):
+    chime.warning(False)
 
 config = {
 
@@ -155,11 +168,20 @@ config = {
         {'name': 'PRESET 2', 'pose': ['TWO'], 'callback': 'change_preset', "first_trigger_delay": 0.3},
         {'name': 'PRESET 3', 'pose': 'THREE', 'callback': 'change_preset', "first_trigger_delay": 0.3},
         #{'name': 'PRESET 4', 'pose': ['FOUR'], 'callback': 'change_preset', "first_trigger_delay": 0.3},
+        {'name': 'NAVIGATION_INDICATOR', 'pose': ['FIVE', 'FOUR'], 'callback': 'play_sound',"first_trigger_delay": 0},
         {'name': 'NAVIGATE', 'pose': ['FIVE', 'FOUR'], 'callback': 'change_preset',
-         "trigger": "periodic", "first_trigger_delay": 0.2, "next_trigger_delay": 3, },
+         "trigger": "periodic", "first_trigger_delay": 0.2, "next_trigger_delay": 2.3, },
         {'name': 'BRIGHTNESS', 'pose': 'FIST', 'callback': 'change_brightness',
-         "trigger": "periodic", "first_trigger_delay": 0.2, "next_trigger_delay": 3, },
+         "trigger": "periodic", "first_trigger_delay": 0.2, "next_trigger_delay": 2.3, },
     ]
 }
 
+#chime.success()
+#chime.warning()
+#chime.error()
+#chime.info()
+#chime.notify_exceptions()
+
+
+speech_controller.say("Use your palm to navigate the menu. Rotate it to the right to scroll down the menu. Rotate it to the left to scroll up the menu. Use your fist to switch on or off.")
 HandController(config).loop()
