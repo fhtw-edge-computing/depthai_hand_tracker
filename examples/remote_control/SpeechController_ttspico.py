@@ -1,6 +1,9 @@
 import subprocess
 import time
 
+# SpeechController using picotts
+# @Thanks Benjamin Klaus: Code is based on https://github.com/fhtw-edge-computing/rhasspy-bridge/blob/main/src/speechService.py
+
 langMapping = {
     "de": "de-DE",
     "en": "en-US"
