@@ -16,7 +16,6 @@ from SpeechController_ttspico import SpeechController
 import itemTree
 
 import chime
-chime.theme('zelda')
 
 # For the audio feedback:
 speech_controller = SpeechController()
@@ -26,6 +25,12 @@ cur_idx = 0
 nav_menu = itemTree.menu
 
 prev_gesture=""
+
+#Rotation config
+rot_left=0.4
+rot_right=-0.2
+
+prev_rotated=False
 
 # Callbacks
 def toggle_light(event):
@@ -85,23 +90,23 @@ def change_preset(event):
     elif preset == "NAVIGATE":
         rotation = event.hand.rotation
         print(f'hand rotation: {event.hand.rotation}')
-        if rotation < -0.20:
+        if rotation < rot_right:
             cur_idx += 1
             if cur_idx == len(nav_menu):
                 cur_idx -= 1
                 play_error()
 
-        elif rotation > 0.40:
+        elif rotation > rot_left:
             cur_idx -= 1
             if cur_idx < 0:
                 cur_idx = 0
                 play_error()
 
     #print(f'cur_idx: {cur_idx}')
-    if last_idx != cur_idx:
-        selected_item = item_tree[nav_menu[cur_idx][0]][nav_menu[cur_idx][1]][nav_menu[cur_idx][2]]
-        print(f'selected item: {str(selected_item)}')
-        speech_controller.say(selected_item['label'])
+#    if last_idx != cur_idx:
+    selected_item = item_tree[nav_menu[cur_idx][0]][nav_menu[cur_idx][1]][nav_menu[cur_idx][2]]
+    print(f'selected item: {str(selected_item)}')
+    speech_controller.say(selected_item['label'])
 
     # remember this gesture as previous
     prev_gesture=preset
@@ -110,13 +115,13 @@ def change_preset(event):
 def change_brightness(event):
     global cur_idx
     global prev_gesture
-    event.print_line()
+    #event.print_line()
 
     rotation = event.hand.rotation
     print(f'hand rotation: {event.hand.rotation}')
-    if rotation < -0.20:
+    if rotation < rot_right:
         level = "+"
-    elif rotation > 0.40:
+    elif rotation > rot_left:
         level = "-"
     else:
         level = "="
@@ -132,6 +137,7 @@ def change_brightness(event):
             brightness=0
 
         if (brightness == 1 and level == "-") or (brightness == 100 and level == "+"):
+            play_error()
             return
         if level == "+":
             new_val = str(min(100, int(brightness) + 20))
@@ -149,11 +155,32 @@ def change_brightness(event):
     # remember this gesture as previous
     prev_gesture=event.name
 
-def play_sound(event=None):
-    chime.info(False)
+def start_change_preset(event):
+    global prev_rotated
+
+    rotation = event.hand.rotation
+    if rotation < rot_right or rotation > rot_left:
+        if not prev_rotated:
+            play_action_begin()
+            prev_rotated=True
+    else:
+        prev_rotated=False
+def play_range_in_out(event=None):
+    print(f"event.name: {event.name}, trigger: {event.trigger}")
+    chime.theme('zelda')
+
+    if event.trigger=="enter":
+        chime.info()
+    elif event.trigger=="leave":
+        chime.error()
+
+def play_action_begin(event=None):
+    chime.theme('material')
+    chime.info()
 
 def play_error(event=None):
-    chime.warning(False)
+    chime.theme('zelda')
+    chime.warning()
 
 config = {
 
@@ -163,12 +190,13 @@ config = {
     'renderer': {'enable': True},
 
     'pose_actions': [
-        #{'name': 'ON_OFF', 'pose': 'ANY', 'callback': 'toggle_light',"first_trigger_delay":0.3},
+        {'name': 'IN_and_OUT_OF_RANGE', 'pose': 'ALL', 'callback': 'play_range_in_out',"first_trigger_delay":0.2, "trigger": "enter_leave","max_missing_frames": 5},
         {'name': 'PRESET 1', 'pose': 'ONE', 'callback': 'change_preset', "first_trigger_delay": 0.3},
         {'name': 'PRESET 2', 'pose': ['TWO'], 'callback': 'change_preset', "first_trigger_delay": 0.3},
         {'name': 'PRESET 3', 'pose': 'THREE', 'callback': 'change_preset', "first_trigger_delay": 0.3},
         #{'name': 'PRESET 4', 'pose': ['FOUR'], 'callback': 'change_preset', "first_trigger_delay": 0.3},
-        {'name': 'NAVIGATION_INDICATOR', 'pose': ['FIVE', 'FOUR'], 'callback': 'play_sound',"first_trigger_delay": 0},
+        {'name': 'BEGIN_ACTION', 'pose': ['FIVE', 'FOUR','FIST'], 'callback': 'start_change_preset',
+         "trigger": "periodic", "first_trigger_delay": 0.2, "next_trigger_delay": 0.5, },
         {'name': 'NAVIGATE', 'pose': ['FIVE', 'FOUR'], 'callback': 'change_preset',
          "trigger": "periodic", "first_trigger_delay": 0.2, "next_trigger_delay": 2.3, },
         {'name': 'BRIGHTNESS', 'pose': 'FIST', 'callback': 'change_brightness',
@@ -176,12 +204,5 @@ config = {
     ]
 }
 
-#chime.success()
-#chime.warning()
-#chime.error()
-#chime.info()
-#chime.notify_exceptions()
-
-
-speech_controller.say("Use your palm to navigate the menu. Rotate it to the right to scroll down the menu. Rotate it to the left to scroll up the menu. Use your fist to switch on or off.")
+speech_controller.say("Use your palm to navigate the menu. Rotate it to the right to scroll down and to the left to scroll up. Use your fist to switch on or off.")
 HandController(config).loop()
