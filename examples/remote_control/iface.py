@@ -7,7 +7,7 @@ test_url_string2 = 'http://192.168.43.62:8080/rest/items'
 
 url_str = url_string
 
-mock_connection=True
+mock_connection=False
 
 mock_state=dict()
 
