@@ -289,7 +289,7 @@ config = {
     # 'tracker': {'args': {'body_pre_focusing': 'higher'}},
 
     # 'renderer' : {'enable': True, 'args':{'output':'toggle_light.mp4'}},
-    'renderer': {'enable': True},
+    'renderer': {'enable': False},
 
     'pose_actions': [
         {'name': 'IN_and_OUT_OF_RANGE', 'pose': 'ALL', 'callback': 'play_range_in_out',"first_trigger_delay":0.2, "trigger": "enter_leave","max_missing_frames": 5},
