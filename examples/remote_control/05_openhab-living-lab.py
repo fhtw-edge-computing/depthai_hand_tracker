@@ -12,10 +12,11 @@ print(README)
 from time import time
 from HandController import HandController
 import iface
-from SpeechController_ttspico import SpeechController
+from SpeechController_gTTS import SpeechController
 import itemTree
 
 import chime
+import time
 
 # For the audio feedback:
 speech_controller = SpeechController()
@@ -31,6 +32,35 @@ rot_left=0.4
 rot_right=-0.2
 
 prev_rotated=False
+prev_time=time.time()
+
+def change_preset_next(event):
+    global cur_idx
+    cur_idx += 1
+    if cur_idx == len(nav_menu):
+        cur_idx -= 1
+        play_error()
+
+    say_current_item()
+    # remember this gesture as previous
+    prev_gesture=event.name
+
+def change_preset_prev(event):
+    global cur_idx
+    cur_idx -= 1
+    if cur_idx < 0:
+        cur_idx = 0
+        play_error()
+
+    say_current_item()
+    # remember this gesture as previous
+    prev_gesture=event.name
+
+def current_item(event):
+    say_current_item()
+    # remember this gesture as previous
+    prev_gesture=event.name
+
 
 # Callbacks
 def toggle_light(event):
@@ -77,6 +107,18 @@ def change_preset(event):
     event.print_line()
     preset = event.name
 
+    global prev_time
+    now=time.time()
+    time_diff=(float)(now-prev_time)
+    print(f'diff: {time_diff}')
+
+    start_change_preset(event)
+
+    if prev_gesture==event.name and time_diff < 2.5:
+        print(f'ignoring diff: {time_diff}')
+        return
+
+    prev_time=now
     last_idx = cur_idx
 
     if preset == "PRESET 1":
@@ -103,14 +145,17 @@ def change_preset(event):
                 play_error()
 
     #print(f'cur_idx: {cur_idx}')
-#    if last_idx != cur_idx:
-    selected_item = item_tree[nav_menu[cur_idx][0]][nav_menu[cur_idx][1]][nav_menu[cur_idx][2]]
-    print(f'selected item: {str(selected_item)}')
-    speech_controller.say(selected_item['label'])
+    if last_idx != cur_idx:
+        say_current_item()
 
     # remember this gesture as previous
     prev_gesture=preset
 
+
+def say_current_item():
+    selected_item = item_tree[nav_menu[cur_idx][0]][nav_menu[cur_idx][1]][nav_menu[cur_idx][2]]
+    print(f'selected item: {str(selected_item)}')
+    speech_controller.say(selected_item['label'])
 
 def change_brightness(event):
     global cur_idx
@@ -161,10 +206,14 @@ def start_change_preset(event):
     rotation = event.hand.rotation
     if rotation < rot_right or rotation > rot_left:
         if not prev_rotated:
-            play_action_begin()
+            #change_preset(event)
+            #say_current_item()
+#            play_action_begin()
             prev_rotated=True
-    else:
+    elif prev_rotated==True:
+        say_current_item()
         prev_rotated=False
+
 def play_range_in_out(event=None):
     print(f"event.name: {event.name}, trigger: {event.trigger}")
     chime.theme('zelda')
@@ -195,12 +244,21 @@ config = {
         {'name': 'PRESET 2', 'pose': ['TWO'], 'callback': 'change_preset', "first_trigger_delay": 0.3},
         {'name': 'PRESET 3', 'pose': 'THREE', 'callback': 'change_preset', "first_trigger_delay": 0.3},
         #{'name': 'PRESET 4', 'pose': ['FOUR'], 'callback': 'change_preset', "first_trigger_delay": 0.3},
-        {'name': 'BEGIN_ACTION', 'pose': ['FIVE', 'FOUR','FIST'], 'callback': 'start_change_preset',
-         "trigger": "periodic", "first_trigger_delay": 0.2, "next_trigger_delay": 0.5, },
-        {'name': 'NAVIGATE', 'pose': ['FIVE', 'FOUR'], 'callback': 'change_preset',
-         "trigger": "periodic", "first_trigger_delay": 0.2, "next_trigger_delay": 2.3, },
-        {'name': 'BRIGHTNESS', 'pose': 'FIST', 'callback': 'change_brightness',
-         "trigger": "periodic", "first_trigger_delay": 0.2, "next_trigger_delay": 2.3, },
+#        {'name': 'BEGIN_ACTION', 'pose': ['FIVE', 'FOUR'], 'callback': 'start_change_preset',
+#         "trigger": "periodic", "first_trigger_delay": 0.2, "next_trigger_delay": 0.5, },
+        {'name': 'NAVIGATE_current', 'pose': ['PALM_ROT_ZERO'], 'callback': 'current_item',
+         "trigger": "enter", "first_trigger_delay": 0.2, "next_trigger_delay": 2.6, },
+        {'name': 'NAVIGATE_next', 'pose': ['PALM_ROT_RIGHT'], 'callback': 'change_preset_next',
+         "trigger": "periodic", "first_trigger_delay": 0.2, "next_trigger_delay": 2.6, },
+        {'name': 'NAVIGATE_prev', 'pose': ['PALM_ROT_LEFT'], 'callback': 'change_preset_prev',
+         "trigger": "periodic", "first_trigger_delay": 0.2, "next_trigger_delay": 2.6, },
+        {'name': 'BRIGHTNESS_toggle', 'pose': 'FIST_ROT_ZERO', 'callback': 'toggle_light',
+         "trigger": "enter", "first_trigger_delay": 0.2, "next_trigger_delay": 2.6, },
+        {'name': 'BRIGHTNESS_up', 'pose': 'FIST_ROT_RIGHT', 'callback': 'change_brightness',
+         "trigger": "periodic", "first_trigger_delay": 0.2, "next_trigger_delay": 2.6, },
+        {'name': 'BRIGHTNESS_down', 'pose': 'FIST_ROT_LEFT', 'callback': 'change_brightness',
+         "trigger": "periodic", "first_trigger_delay": 0.2, "next_trigger_delay": 2.6, },
+
     ]
 }
 
