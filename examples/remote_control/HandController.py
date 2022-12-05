@@ -3,7 +3,7 @@ sys.path.append("../..")
 import datetime
 from time import monotonic
 
-ALL_POSES = ["ONE","TWO","THREE","FOUR","FIVE","FIST","PEACE","OK","TRACK","BACK","SIX","ALOHA","HORNS"]
+ALL_POSES = ["ONE","TWO","THREE","FOUR","FIVE","FIST","PEACE","OK","TRACK","BACK","SIX","ALOHA","HORNS","PALM_ROT_ZERO","PALM_ROT_LEFT","PALM_ROT_RIGHT","FIST_ROT_ZERO","FIST_ROT_RIGHT","FIST_ROT_LEFT"]
 
 # Default values for config parameters
 # Each one of these parameters can be superseded by a new value if specified in client code
