@@ -557,7 +557,23 @@ def recognize_gesture(hand):
         hand.little_state = -1
 
     # Gesture
-    if hand.thumb_state == 1 and hand.index_state == 1 and hand.middle_state == 1 and hand.ring_state == 1 and hand.little_state == 1:
+    # Rotation config
+    rot_left = 0.4
+    rot_right = -0.2
+
+    if hand.rotation < rot_right and hand.index_state == 1 and hand.middle_state == 1 and hand.ring_state == 1 and hand.little_state == 1:
+        hand.gesture="PALM_ROT_RIGHT"
+    elif hand.rotation > rot_left and hand.index_state == 1 and hand.middle_state == 1 and hand.ring_state == 1 and hand.little_state == 1:
+        hand.gesture="PALM_ROT_LEFT"
+    elif hand.index_state == 1 and hand.middle_state == 1 and hand.ring_state == 1 and hand.little_state == 1:
+        hand.gesture="PALM_ROT_ZERO"
+    elif hand.rotation < rot_right and hand.thumb_state == 0 and hand.index_state == 0 and hand.middle_state == 0 and hand.ring_state == 0 and hand.little_state == 0:
+        hand.gesture = "FIST_ROT_RIGHT"
+    elif hand.rotation > rot_left and hand.thumb_state == 0 and hand.index_state == 0 and hand.middle_state == 0 and hand.ring_state == 0 and hand.little_state == 0:
+        hand.gesture = "FIST_ROT_LEFT"
+    elif hand.thumb_state == 0 and hand.index_state == 0 and hand.middle_state == 0 and hand.ring_state == 0 and hand.little_state == 0:
+        hand.gesture = "FIST_ROT_ZERO"
+    elif hand.thumb_state == 1 and hand.index_state == 1 and hand.middle_state == 1 and hand.ring_state == 1 and hand.little_state == 1:
         hand.gesture = "FIVE"
     elif hand.thumb_state == 0 and hand.index_state == 0 and hand.middle_state == 0 and hand.ring_state == 0 and hand.little_state == 0:
         hand.gesture = "FIST"
