@@ -61,6 +61,55 @@ def current_item(event):
     # remember this gesture as previous
     prev_gesture=event.name
 
+def change_brightness_up(event):
+    global cur_idx
+    global prev_gesture
+
+    selected_item = item_tree[nav_menu[cur_idx][0]][nav_menu[cur_idx][1]][nav_menu[cur_idx][2]]
+
+    if selected_item['type'] == 'percentage':
+        brightness = iface.get_state(selected_item['name'])
+        print(brightness)
+        if not (brightness.isnumeric()):
+            #hack for mocking percentage value in case there is not default value
+            brightness=0
+
+        if brightness == 100:
+            play_error()
+            return
+
+        new_val = str(min(100, int(brightness) + 20))
+        print(f'{selected_item["name"]} = {new_val}')
+        speech_controller.say(new_val)
+        iface.post_state(selected_item['name'], new_val)
+
+    # remember this gesture as previous
+    prev_gesture=event.name
+
+def change_brightness_down(event):
+    global cur_idx
+    global prev_gesture
+
+    selected_item = item_tree[nav_menu[cur_idx][0]][nav_menu[cur_idx][1]][nav_menu[cur_idx][2]]
+
+    if selected_item['type'] == 'percentage':
+        brightness = iface.get_state(selected_item['name'])
+        if not (brightness.isnumeric()):
+            # hack for mocking percentage value in case there is not default value
+            brightness = 0
+
+        if brightness == 0:
+            play_error()
+            return
+
+        new_val = str(max(0, int(brightness) - 20))
+        print(f'{selected_item["name"]} = {new_val}')
+        speech_controller.say(new_val)
+        iface.post_state(selected_item['name'], new_val)
+
+        # remember this gesture as previous
+    prev_gesture = event.name
+
 
 # Callbacks
 def toggle_light(event):
@@ -69,36 +118,40 @@ def toggle_light(event):
     event.print_line()
     new_state = "OFF"
 
-    if prev_gesture == event.name:
-        print(f"ignoring recurring gesture: {prev_gesture}=={event.name}")
-        return
+#    if prev_gesture == 'FIST_ROT_RIGHT' or prev_gesture =='FIST_ROT_LEFT':
+#        print(f"ignoring recurring gesture: {prev_gesture}, {event.name}")
+#        return
     #    item=item_tree[selected_room][selected_device][selected_item]
     #    cur_state=iface.get_state(item.get('name'))
 
     selected_item = item_tree[nav_menu[cur_idx][0]][nav_menu[cur_idx][1]][nav_menu[cur_idx][2]]
     print("toggle selected_item: " + str(selected_item))
+
     cur_state = iface.get_state(selected_item['name'])
     state_label = cur_state
-    if cur_state == "OFF":
-        new_state = "ON"
-        state_label = "on"
-    elif cur_state == "ON":
-        new_state = "OFF"
-        state_label = "off"
-    elif cur_state == "0":
-        new_state = "100"
-        state_label = "on"
-    elif cur_state == "100":
-        new_state = "0"
-        state_label = "off"
 
-    #    error_msg=iface.post_state(item.get('name'),state_label)
-    error_msg = iface.post_state(selected_item['name'], new_state)
-    print(error_msg)
-    # if error_msg == "OK":
-    speech_controller.say("Ok, switched " + state_label + " " + " light")
-    # else:
-    #    speech_controller.say("Error, switching "+state_label+" "+item.get('label'))
+    if selected_item['type'] == 'bool':
+        cur_state = iface.get_state(selected_item['name'])
+        state_label = cur_state
+        if cur_state == "OFF":
+            new_state = "ON"
+            state_label = "on"
+        elif cur_state == "ON":
+            new_state = "OFF"
+            state_label = "off"
+        elif cur_state == "0":
+            new_state = "100"
+            state_label = "on"
+        elif cur_state == "100":
+            new_state = "0"
+            state_label = "off"
+
+        #    error_msg=iface.post_state(item.get('name'),state_label)
+        error_msg = iface.post_state(selected_item['name'], new_state)
+        print(error_msg)
+        speech_controller.say("Ok, switched " + state_label)
+    elif selected_item['type'] == 'percentage':
+        speech_controller.say("Current value " + state_label)
 
 
 def change_preset(event):
@@ -254,9 +307,9 @@ config = {
          "trigger": "periodic", "first_trigger_delay": 0.2, "next_trigger_delay": 2.6, },
         {'name': 'BRIGHTNESS_toggle', 'pose': 'FIST_ROT_ZERO', 'callback': 'toggle_light',
          "trigger": "enter", "first_trigger_delay": 0.2, "next_trigger_delay": 2.6, },
-        {'name': 'BRIGHTNESS_up', 'pose': 'FIST_ROT_RIGHT', 'callback': 'change_brightness',
+        {'name': 'BRIGHTNESS_up', 'pose': 'FIST_ROT_RIGHT', 'callback': 'change_brightness_up',
          "trigger": "periodic", "first_trigger_delay": 0.2, "next_trigger_delay": 2.6, },
-        {'name': 'BRIGHTNESS_down', 'pose': 'FIST_ROT_LEFT', 'callback': 'change_brightness',
+        {'name': 'BRIGHTNESS_down', 'pose': 'FIST_ROT_LEFT', 'callback': 'change_brightness_down',
          "trigger": "periodic", "first_trigger_delay": 0.2, "next_trigger_delay": 2.6, },
 
     ]
