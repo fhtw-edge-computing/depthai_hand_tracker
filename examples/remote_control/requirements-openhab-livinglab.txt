@@ -1,0 +1,7 @@
+opencv-python >= 4.5.1.48
+depthai>=2.13
+furl
+chime
+requests==2.27.1
+gTTS
+pygame
