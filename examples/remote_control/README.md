@@ -13,6 +13,10 @@ The class **HandController**, defined in this directory, relies on HandTracker, 
   <img src="medias/toggle_light.gif" width="400" />
 </p>
 
+## OpenHAB Smart Living Lab Demo (UAS Technikum Wien)
+
+Added Hand gesture control application for Smart Living Lab (UAST Technikum Wien), see [README-openhab-livinglab.md](README-openhab-livinglab.md)
+
 ## 1) API
 In order to use HandController, you need to know :
 - the structure of the dictionnary **config** where you define what you want to do,
